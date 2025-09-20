@@ -4,37 +4,20 @@ from flask import Flask
 import threading
 import os
 
-# -------------------------
-# Flask keep-alive server
-# -------------------------
 app = Flask('')
 
 @app.route('/')
 def home():
     return "Bot is alive!"
 
-def run_flask():
+# Run Discord bots in threads
+def run_bots():
+    threading.Thread(target=run, daemon=True).start()
+    threading.Thread(target=run2, daemon=True).start()
+
+if __name__ == "__main__":
+    run_bots()  # Start bots in background
+
+    # Flask stays in main thread
     port = int(os.environ.get("PORT", 8080))
     app.run(host="0.0.0.0", port=port)
-
-# -------------------------
-# Run Flask in a separate daemon thread
-# -------------------------
-flask_thread = threading.Thread(target=run_flask, daemon=True)
-flask_thread.start()
-
-# -------------------------
-# Run your Discord bots in separate threads
-# -------------------------
-bot1_thread = threading.Thread(target=run, daemon=True)
-bot2_thread = threading.Thread(target=run2, daemon=True)
-
-bot1_thread.start()
-bot2_thread.start()
-
-# -------------------------
-# Keep the main thread alive
-# -------------------------
-flask_thread.join()
-bot1_thread.join()
-bot2_thread.join()
