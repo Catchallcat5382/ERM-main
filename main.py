@@ -1,7 +1,7 @@
 from erm import run
 from results import run2
-import threading
 from flask import Flask
+import threading
 import os
 
 # -------------------------
@@ -17,19 +17,24 @@ def run_flask():
     port = int(os.environ.get("PORT", 8080))
     app.run(host="0.0.0.0", port=port)
 
-# Start Flask in a separate thread
-threading.Thread(target=run_flask, daemon=True).start()
+# -------------------------
+# Run Flask in a separate daemon thread
+# -------------------------
+flask_thread = threading.Thread(target=run_flask, daemon=True)
+flask_thread.start()
 
 # -------------------------
-# Run your bots in parallel
+# Run your Discord bots in separate threads
 # -------------------------
-if __name__ == "__main__":
-    t1 = threading.Thread(target=run, daemon=True)
-    t2 = threading.Thread(target=run2, daemon=True)
+bot1_thread = threading.Thread(target=run, daemon=True)
+bot2_thread = threading.Thread(target=run2, daemon=True)
 
-    t1.start()
-    t2.start()
+bot1_thread.start()
+bot2_thread.start()
 
-    # Keep main thread alive so Render doesn’t kill the service
-    t1.join()
-    t2.join()
+# -------------------------
+# Keep the main thread alive
+# -------------------------
+flask_thread.join()
+bot1_thread.join()
+bot2_thread.join()
