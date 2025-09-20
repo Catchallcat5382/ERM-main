@@ -4,5 +4,5 @@ from results import run2
 if __name__ == "__main__":
     run()
 
-if __name__ == "__results__":
+if __name__ == "__Results__":
     run2()
