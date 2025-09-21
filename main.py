@@ -1,8 +1,9 @@
+from flask import Flask
+import os
+import asyncio
+import threading
 from erm import run
 from results import run2
-from flask import Flask
-import threading
-import os
 
 app = Flask('')
 
@@ -10,14 +11,14 @@ app = Flask('')
 def home():
     return "Bot is alive!"
 
-# Run Discord bots in threads
-def run_bots():
-    threading.Thread(target=run, daemon=True).start()
-    threading.Thread(target=run2, daemon=True).start()
+def start_flask():
+    port = int(os.environ.get("PORT", 10000))
+    app.run(host="0.0.0.0", port=port)
 
 if __name__ == "__main__":
-    run_bots()  # Start bots in background
+    # Start Flask in a thread (just for Render healthcheck)
+    threading.Thread(target=start_flask).start()
 
-    # Flask stays in main thread
-    port = int(os.environ.get("PORT", 1000))
-    app.run(host="0.0.0.0", port=port)
+    # Run your Discord bots in the main thread using asyncio
+    asyncio.run(run())   # Make sure run() is an async function
+    asyncio.run(run2())  # Or combine them in a single async function
